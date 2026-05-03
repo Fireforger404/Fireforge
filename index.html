@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FireForge — Professional Training Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#C0392B;--red-dark:#96281B;--orange:#E67E22;
+  --steel:#1C2530;--steel2:#243040;--steel3:#2E3D50;
+  --border:#3A4D62;--light:#4A6080;
+  --text:#F0F4F8;--muted:#8A9BAD;--dim:#5A7080;
+  --surf:#1E2C3A;--surf2:#253545;--surf3:#2A3D50;
+  --green:#27AE60;--blue:#2980B9;--gold:#F39C12;
+  --sw:240px;--th:56px;--bh:64px;
+  --r:10px;--rs:6px;
+}
+body{font-family:'Barlow',sans-serif;background:var(--steel);color:var(--text);min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;font-family:'Barlow',sans-serif}
+input,select,textarea{font-family:'Barlow',sans-serif;color:var(--text)}
+input[type=text],input[type=email],input[type=password],select,textarea{
+  background:var(--steel3);border:1px solid var(--border);color:var(--text);
+  border-radius:var(--rs);padding:10px 14px;font-size:14px;width:100%;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--red)}
+textarea{resize:vertical;min-height:80px}
+label{font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+
+/* ── LAYOUT ── */
+.sidebar{width:var(--sw);background:var(--steel2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:300;transition:transform .28s ease;overflow-y:auto}
+.main{margin-left:var(--sw);min-height:100vh;position:relative}
+.page{display:none;padding:28px 32px;animation:fadeIn .25s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.ov-back{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:299;backdrop-filter:blur(2px)}
+.ov-back.show{display:block}
+.topbar,.bnav{display:none}
+
+/* ── SIDEBAR ── */
+.sb-logo{padding:18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-flame{width:32px;height:32px;background:linear-gradient(135deg,var(--orange),var(--red));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.logo-txt{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.sb-guest{padding:12px 18px;border-bottom:1px solid var(--border);background:rgba(192,57,43,.06);flex-shrink:0}
+.sb-guest p{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+.sb-user{padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0;display:none}
+.u-row{display:flex;align-items:center;gap:10px}
+.u-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--orange));display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;flex-shrink:0}
+.u-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.u-rank{font-size:11px;color:var(--muted)}
+.u-badge{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;border-radius:10px;margin-top:3px;display:inline-block}
+.badge-basic{background:rgba(74,96,128,.3);color:var(--muted)}
+.badge-pro{background:rgba(41,128,185,.25);color:#5DADE2}
+.badge-elite{background:rgba(243,156,18,.2);color:var(--gold)}
+.nav{padding:8px 0;flex:1}
+.nav-sec{padding:8px 18px 4px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nav-item.active{color:var(--text);background:rgba(192,57,43,.12);border-left-color:var(--red)}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.prev-chip{font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;background:rgba(230,126,34,.2);color:var(--orange);padding:2px 6px;border-radius:8px;margin-left:auto}
+.sb-footer{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;display:none}
+.upg-box{background:linear-gradient(135deg,rgba(192,57,43,.2),rgba(230,126,34,.15));border:1px solid rgba(192,57,43,.3);border-radius:var(--rs);padding:12px;text-align:center}
+.upg-box p{font-size:11px;color:var(--muted);margin-bottom:8px}
+.btn-upg{background:linear-gradient(135deg,var(--red),var(--orange));color:#fff;border:none;border-radius:var(--rs);padding:8px 16px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;width:100%;cursor:pointer;transition:opacity .15s}
+.btn-upg:hover{opacity:.85}
+
+/* ── COMPONENTS ── */
+.ph{margin-bottom:22px}
+.ph h1{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.ph p{font-size:14px;color:var(--muted);margin-top:4px}
+.hr{width:40px;height:3px;background:linear-gradient(to right,var(--red),var(--orange));border-radius:2px;margin:7px 0}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.cttl{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:var(--rs);font-size:13px;font-weight:600;border:none;transition:all .15s;font-family:'Barlow',sans-serif;cursor:pointer}
+.bp{background:var(--red);color:#fff}.bp:hover{background:var(--red-dark)}
+.bg{background:transparent;color:var(--muted);border:1px solid var(--border)}.bg:hover{color:var(--text);border-color:var(--light)}
+.bl{padding:12px 24px;font-size:14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.bw{width:100%;justify-content:center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g2f{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fx{display:flex}.ic{align-items:center}.sb{justify-content:space-between}
+.gap8{gap:8px}.gap12{gap:12px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}
+.fr{margin-bottom:12px}
+.stat{background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.sr::before{background:var(--red)}.so::before{background:var(--orange)}.sg::before{background:var(--green)}.sb2::before{background:var(--blue)}
+.sv{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;line-height:1}
+.sl{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600}
+.pr{background:rgba(192,57,43,.2);color:#E74C3C}
+.po{background:rgba(230,126,34,.2);color:var(--orange)}
+.pg{background:rgba(39,174,96,.2);color:#2ECC71}
+.pb{background:rgba(41,128,185,.2);color:#5DADE2}
+.pgr{background:rgba(90,112,128,.2);color:var(--muted)}
+.pgl{background:rgba(243,156,18,.2);color:var(--gold)}
+
+/* ── GUEST OVERLAY ── */
+.guest-lock{
+  position:fixed;left:var(--sw);right:0;bottom:0;z-index:60;
+  display:none;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:16px;
+  background:linear-gradient(to bottom,rgba(28,37,48,0) 0%,rgba(28,37,48,0.82) 30%,rgba(28,37,48,0.97) 100%);
+  text-align:center;pointer-events:none;
+  top:55%;
+}
+.guest-lock.on{display:flex;pointer-events:all}
+.gl-inner{padding:0 20px 4px;max-width:480px;width:100%}
+.gl-ico{font-size:22px;margin-bottom:5px}
+.gl-badge{background:linear-gradient(135deg,var(--red),var(--orange));color:#fff;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:7px;display:inline-block}
+.gl-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;text-transform:uppercase;margin-bottom:4px}
+.gl-sub{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.gl-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
+/* ── LANDING ── */
+#page-landing{padding:0;margin-left:calc(-1*var(--sw));width:calc(100% + var(--sw))}
+.lhero{min-height:100vh;background:var(--steel);display:flex;flex-direction:column}
+.lnav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid var(--border)}
+.lbody{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 40px;gap:60px;flex-wrap:wrap}
+.htxt{max-width:460px;min-width:260px}
+.heye{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:12px}
+.htitle{font-family:'Barlow Condensed',sans-serif;font-size:58px;font-weight:800;text-transform:uppercase;line-height:.95;margin-bottom:16px}
+.htitle span{color:var(--red)}
+.hsub{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:24px}
+.hcta{display:flex;gap:10px;flex-wrap:wrap}
+.hvis{flex-shrink:0;width:300px;min-width:240px}
+.fcards{display:flex;flex-direction:column;gap:10px}
+.fcard{background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;align-items:center;gap:12px}
+.fi{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.fir{background:rgba(192,57,43,.25)}.fio{background:rgba(230,126,34,.2)}.fig{background:rgba(39,174,96,.2)}.fib{background:rgba(41,128,185,.2)}
+.fcard h3{font-size:13px;font-weight:600;margin-bottom:2px}
+.fcard p{font-size:11px;color:var(--muted)}
+
+/* ── AUTH ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:26px;width:100%;max-width:420px;position:relative;max-height:90vh;overflow-y:auto}
+.mx{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer}
+.modal h2{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;text-transform:uppercase;margin-bottom:4px}
+.modal .sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.asw{text-align:center;margin-top:12px;font-size:13px;color:var(--muted)}
+.asw span{color:var(--orange);cursor:pointer}
+
+/* ── SUBSCRIPTION ── */
+.sub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+.sub-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;transition:border-color .2s,transform .2s}
+.sub-card:hover{transform:translateY(-2px)}
+.sub-card.feat{border-color:var(--gold);box-shadow:0 0 0 1px rgba(243,156,18,.2)}
+.sub-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--steel);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap}
+.sub-ico{font-size:26px;margin-bottom:10px}
+.sub-nm{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.sub-pr{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;line-height:1;margin:8px 0 3px}
+.sub-pr span{font-size:14px;font-weight:400;color:var(--muted)}
+.sub-per{font-size:11px;color:var(--muted);margin-bottom:14px}
+.sub-feats{list-style:none;margin-bottom:16px}
+.sub-feats li{font-size:12px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.sub-feats li:last-child{border-bottom:none}
+.sub-feats li.yes{color:var(--text)}
+.ck{width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0}
+.cky{background:rgba(39,174,96,.2);color:#2ECC71}.ckn{background:rgba(90,112,128,.15);color:var(--dim)}
+.cur-tag{display:block;text-align:center;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.5px;text-transform:uppercase;margin-top:8px}
+
+/* ── DASHBOARD ── */
+.wbar{background:linear-gradient(135deg,var(--surf2),var(--surf3));border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.wbar h2{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700}
+.wbar p{font-size:13px;color:var(--muted);margin-top:2px}
+.pring{position:relative;width:68px;height:68px;flex-shrink:0}
+.pring svg{transform:rotate(-90deg)}
+.rbg{stroke:var(--steel3);stroke-width:5;fill:none}
+.rfill{stroke:var(--red);stroke-width:5;fill:none;stroke-linecap:round;transition:stroke-dashoffset .5s}
+.rlbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif}
+.rpct{font-size:17px;font-weight:800;line-height:1}
+.rsub{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.srow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.srow:last-child{border-bottom:none}
+.sdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.sinf{flex:1;min-width:0}
+.sttl{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.smet{font-size:11px;color:var(--muted);margin-top:2px}
+.ssc{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;flex-shrink:0}
+
+/* ── GENERATOR ── */
+.gsteps{display:flex;margin-bottom:20px;background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.gstep{flex:1;padding:11px 8px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:var(--dim);border-right:1px solid var(--border);transition:all .2s}
+.gstep:last-child{border-right:none}
+.gstep.active{color:var(--text);background:rgba(192,57,43,.1)}
+.gstep.done{color:var(--green)}
+.gnum{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.gnum.done{background:var(--green);border-color:var(--green);color:#fff}
+.glbl{font-size:11px}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ctile{background:var(--surf2);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.ctile::after{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:transparent;transition:background .2s}
+.ctile:hover{border-color:var(--light)}
+.ctile.sel{border-color:var(--red);background:rgba(192,57,43,.08)}
+.ctile.sel::after{background:linear-gradient(to bottom,var(--orange),var(--red))}
+.ctchk{position:absolute;top:10px;right:12px;width:18px;height:18px;border-radius:50%;background:var(--red);display:none;align-items:center;justify-content:center;font-size:9px;color:#fff}
+.ctile.sel .ctchk{display:flex}
+.ctico{font-size:26px;margin-bottom:8px;display:block}
+.ctnm{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.ctdesc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
+.scpanel{background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.schdr{padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--surf3);border-bottom:1px solid var(--border);transition:background .15s}
+.schdr:hover{background:rgba(255,255,255,.04)}
+.scnm{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;flex:1}
+.scarr{font-size:11px;color:var(--dim)}
+.scbody{padding:12px 14px;display:flex;flex-wrap:wrap;gap:7px}
+.scbody.closed{display:none}
+.tpill{padding:5px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:500;cursor:pointer;background:var(--surf);color:var(--muted);transition:all .15s}
+.tpill:hover{border-color:var(--light);color:var(--text)}
+.tpill.sel{background:var(--red);border-color:var(--red);color:#fff}
+.cfg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.planbox{background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.planhdr{background:var(--steel3);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.planhdr h3{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;text-transform:uppercase}
+.planbd{padding:18px}
+.pwkhdr{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:2px}
+.psess{display:grid;grid-template-columns:68px 1fr auto;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(58,77,98,.4)}
+.psess:last-child{border-bottom:none}
+.pday{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding-top:2px}
+.pttl{font-size:14px;font-weight:600;margin-bottom:3px}
+.pobj{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:5px}
+.pprac{background:rgba(39,174,96,.07);border-left:2px solid var(--green);border-radius:0 4px 4px 0;padding:7px 10px;margin-top:6px}
+.ppraclbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--green);margin-bottom:4px}
+.ppracitm{font-size:12px;color:var(--muted);line-height:1.7}
+.pbadge{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:3px 8px;border-radius:10px;white-space:nowrap}
+.pbs{background:rgba(192,57,43,.2);color:#E74C3C}
+.pbr{background:rgba(230,126,34,.2);color:var(--orange)}
+.pbh{background:rgba(39,174,96,.2);color:#2ECC71}
+.pbe{background:rgba(41,128,185,.2);color:#5DADE2}
+.spinner{width:30px;height:30px;border:2.5px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;margin:36px auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lock-box{text-align:center;padding:24px;background:rgba(192,57,43,.07);border:1px dashed rgba(192,57,43,.3);border-radius:var(--r);margin-top:12px}
+
+/* ── LOG ── */
+.logfilt{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.fpill{padding:6px 13px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:500;cursor:pointer;background:var(--surf);color:var(--muted);transition:all .15s;white-space:nowrap}
+.fpill:hover,.fpill.active{background:var(--red);border-color:var(--red);color:#fff}
+.logcards{display:flex;flex-direction:column;gap:10px}
+.lcard{background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);padding:14px;position:relative;overflow:hidden}
+.lcard::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.lcs::before{background:var(--red)}.lcr::before{background:var(--orange)}.lch::before{background:var(--green)}.lce::before{background:var(--blue)}.lcg::before{background:var(--light)}
+.lchead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.lcttl{font-size:14px;font-weight:600}
+.lcdate{font-size:11px;color:var(--muted);margin-top:2px}
+.lcscore{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800}
+.lcmeta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.lctag{font-size:11px;color:var(--muted);background:var(--surf3);border-radius:4px;padding:2px 7px}
+.lcprac{font-size:12px;color:var(--muted);line-height:1.5}
+.lcprac strong{color:var(--green);font-size:10px;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px}
+.sex{color:#2ECC71}.sgd{color:var(--orange)}.slw{color:var(--red)}
+.logform{background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:18px}
+.logform h3{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;margin-bottom:14px;color:var(--muted)}
+
+/* ── PROFILE ── */
+.profhdr{background:linear-gradient(135deg,var(--surf2),var(--surf3));border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.profav{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--orange));display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:27px;font-weight:800;flex-shrink:0;border:3px solid rgba(192,57,43,.4)}
+.profinf h2{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;text-transform:uppercase}
+.profinf p{font-size:13px;color:var(--muted);margin-top:2px}
+.profbdg{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}
+.certcard{background:var(--surf3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.certico{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(192,57,43,.2);flex-shrink:0}
+.certnm{font-size:13px;font-weight:600}
+.certexp{font-size:11px;color:var(--muted);margin-top:1px}
+.certst{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:10px;white-space:nowrap}
+.csa{background:rgba(39,174,96,.2);color:#2ECC71}
+.cse{background:rgba(230,126,34,.2);color:var(--orange)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:80px;right:16px;background:var(--surf3);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:var(--rs);padding:12px 16px;font-size:13px;z-index:9999;transform:translateX(120%);transition:transform .3s;max-width:300px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.show{transform:translateX(0)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);width:270px;box-shadow:4px 0 24px rgba(0,0,0,.5)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding-top:var(--th);padding-bottom:var(--bh)}
+  .page{padding:14px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;height:var(--th);background:var(--steel2);border-bottom:1px solid var(--border);padding:0 16px;z-index:200}
+  .bnav{display:flex;position:fixed;bottom:0;left:0;right:0;height:var(--bh);background:var(--steel2);border-top:1px solid var(--border);z-index:200}
+  .bnbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--dim);transition:color .15s;padding:8px 4px;border:none;background:none;font-family:'Barlow',sans-serif}
+  .bnbtn.active{color:var(--red)}
+  .bnico{font-size:20px;line-height:1}
+  .bnlbl{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+  .tblogo{display:flex;align-items:center;gap:8px}
+  .tbtitle{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+  .tbmenu{background:none;border:1px solid var(--border);color:var(--text);border-radius:var(--rs);padding:6px 10px;font-size:18px;cursor:pointer}
+  .g2,.g3,.cgrid,.cfg,.g2f,.sub-grid{grid-template-columns:1fr}
+  #page-landing{margin-left:0;width:100%}
+  .lnav{padding:14px 16px}
+  .lbody{flex-direction:column;padding:28px 16px;gap:28px}
+  .htxt{max-width:100%}
+  .htitle{font-size:40px}
+  .hvis{width:100%}
+  .psess{grid-template-columns:58px 1fr}
+  .psess>div:last-child{grid-column:2}
+  .profhdr{flex-direction:column;align-items:flex-start}
+  .toast{bottom:calc(var(--bh) + 10px);right:10px}
+  .glbl{display:none}
+  .gstep{padding:10px 6px;gap:5px}
+  .guest-lock{left:0;top:52%;padding-bottom:calc(var(--bh) + 10px)}
+}
+@media(min-width:769px){
+  .topbar,.bnav,.ov-back{display:none !important}
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE TOP BAR -->
+<header class="topbar">
+  <div class="tblogo">
+    <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--orange),var(--red));border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:15px">🔥</div>
+    <span class="tbtitle">FireForge</span>
+  </div>
+  <button class="tbmenu" onclick="toggleSB()">☰</button>
+</header>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="ov-back" id="ov-back" onclick="closeSB()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="logo-row">
+      <div class="logo-flame">🔥</div>
+      <div><div class="logo-txt">FireForge</div><div class="logo-sub">Training Platform</div></div>
+    </div>
+  </div>
+
+  <!-- Guest CTA (hidden after login) -->
+  <div class="sb-guest" id="sb-guest">
+    <p>👋 Click any menu item to preview the platform</p>
+    <button class="btn bp bl bw" style="font-size:12px;padding:9px" onclick="openAuth('signup')">Create Free Account</button>
+    <div style="text-align:center;margin-top:7px;font-size:11px;color:var(--dim)">Have an account? <span style="color:var(--orange);cursor:pointer" onclick="openAuth('login')">Sign in</span></div>
+  </div>
+
+  <!-- Logged-in user info -->
+  <div class="sb-user" id="sb-user">
+    <div class="u-row">
+      <div class="u-av" id="sb-av">FF</div>
+      <div style="flex:1;min-width:0">
+        <div class="u-name" id="sb-name">Firefighter</div>
+        <div class="u-rank" id="sb-rank">Firefighter I</div>
+        <div class="u-badge badge-basic" id="sb-badge">Basic</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-sec">Main</div>
+    <div class="nav-item active" id="ni-dashboard" onclick="navTo('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
+      <span class="prev-chip" id="pc-dashboard">PREVIEW</span>
+    </div>
+    <div class="nav-item" id="ni-generator" onclick="navTo('generator')">
+      <span class="nav-icon">⚡</span> Training Generator
+      <span class="prev-chip" id="pc-generator">PREVIEW</span>
+    </div>
+    <div class="nav-item" id="ni-log" onclick="navTo('log')">
+      <span class="nav-icon">📋</span> Training Log
+      <span class="prev-chip" id="pc-log">PREVIEW</span>
+    </div>
+    <div class="nav-sec">Account</div>
+    <div class="nav-item" id="ni-profile" onclick="navTo('profile')">
+      <span class="nav-icon">👤</span> My Profile
+      <span class="prev-chip" id="pc-profile">PREVIEW</span>
+    </div>
+    <div class="nav-item" id="ni-subscription" onclick="navTo('subscription')">
+      <span class="nav-icon">⭐</span> Subscription
+    </div>
+    <div class="nav-item" id="ni-signin" onclick="openAuth('login')">
+      <span class="nav-icon">🔑</span> Sign In
+    </div>
+    <div class="nav-item" id="ni-signout" style="display:none" onclick="doLogout()">
+      <span class="nav-icon">🚪</span> Sign Out
+    </div>
+  </nav>
+
+  <div class="sb-footer" id="sb-footer">
+    <div class="upg-box">
+      <p>Unlock AI plans &amp; analytics</p>
+      <button class="btn-upg" onclick="navTo('subscription')">Upgrade Plan</button>
+    </div>
+  </div>
+</aside>
+
+<!-- GUEST PREVIEW OVERLAY (fixed, sits on top of page content) -->
+<div class="guest-lock" id="guest-lock">
+  <div class="gl-inner">
+    <div class="gl-ico" id="gl-ico">📊</div>
+    <div class="gl-badge" id="gl-badge">Live Preview</div>
+    <div class="gl-title" id="gl-title">Your Training Dashboard</div>
+    <p class="gl-sub" id="gl-sub">Create a free account to unlock your personal dashboard and start building your training record.</p>
+    <div class="gl-btns">
+      <button class="btn bp" style="font-size:12px;padding:8px 18px" onclick="openAuth('signup')">Create Free Account →</button>
+      <button class="btn bg" style="font-size:12px;padding:8px 16px" onclick="openAuth('login')">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- LANDING -->
+<div class="page active" id="page-landing">
+  <div class="lhero">
+    <nav class="lnav">
+      <div class="logo-row">
+        <div class="logo-flame">🔥</div>
+        <div><div class="logo-txt" style="font-size:18px">FireForge</div><div class="logo-sub">Training Platform</div></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn bg" onclick="openAuth('login')">Sign In</button>
+        <button class="btn bp" onclick="openAuth('signup')">Get Started</button>
+      </div>
+    </nav>
+    <div class="lbody">
+      <div class="htxt">
+        <div class="heye">Professional Development Platform</div>
+        <h1 class="htitle">Train <span>Smarter.</span><br>Perform Better.</h1>
+        <p class="hsub">AI-powered training plans built for fire service professionals. Track every drill, document every skill, and build a career-spanning record of excellence.</p>
+        <div class="hcta">
+          <button class="btn bp bl" onclick="openAuth('signup')">Create Free Account →</button>
+          <button class="btn bg bl" onclick="navTo('dashboard')">See a Preview</button>
+        </div>
+      </div>
+      <div class="hvis">
+        <div class="fcards">
+          <div class="fcard"><div class="fi fir">⚡</div><div><h3>AI Training Generator</h3><p>Custom multi-week plans across all disciplines</p></div></div>
+          <div class="fcard"><div class="fi fio">📋</div><div><h3>Training Documentation</h3><p>Log sessions with scores, notes, practical skills</p></div></div>
+          <div class="fcard"><div class="fi fig">📈</div><div><h3>Progress Analytics</h3><p>Track hours, completion rates, category proficiency</p></div></div>
+          <div class="fcard"><div class="fi fib">🏅</div><div><h3>Certification Tracker</h3><p>Never miss a renewal with expiration alerts</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="page-dashboard">
+  <div class="ph"><h1 id="dash-name">Dashboard</h1><div class="hr"></div><p id="dash-sub">Here's your training overview</p></div>
+  <div class="wbar">
+    <div><h2>Monthly Goal Progress</h2><p id="goal-txt">Loading...</p></div>
+    <div class="pring">
+      <svg width="68" height="68" viewBox="0 0 68 68">
+        <circle class="rbg" cx="34" cy="34" r="29"/>
+        <circle class="rfill" cx="34" cy="34" r="29" id="ring-fill" stroke-dasharray="182.2" stroke-dashoffset="182.2"/>
+      </svg>
+      <div class="rlbl"><div class="rpct" id="ring-pct">0%</div><div class="rsub">Done</div></div>
+    </div>
+  </div>
+  <div class="g3 mb16">
+    <div class="stat sr"><div class="sv" id="st-tot">0</div><div class="sl">Sessions</div></div>
+    <div class="stat so"><div class="sv" id="st-hrs">0</div><div class="sl">Hours</div></div>
+    <div class="stat sg"><div class="sv" id="st-avg">—</div><div class="sl">Avg Score</div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="card"><div class="cttl">Recent Sessions</div><div id="recent-list"></div></div>
+    <div class="card"><div class="cttl">Category Breakdown</div><div id="cat-bdown"></div></div>
+  </div>
+  <div class="card"><div class="cttl">Quick Actions</div><div class="fx gap8 mt8" style="flex-wrap:wrap">
+    <button class="btn bp" onclick="navTo('generator')">⚡ Generate Plan</button>
+    <button class="btn bg" onclick="navTo('log')">📋 Log Session</button>
+    <button class="btn bg" onclick="navTo('profile')">👤 My Profile</button>
+  </div></div>
+</div>
+
+<!-- GENERATOR -->
+<div class="page" id="page-generator">
+  <div class="ph"><h1>Training Generator</h1><div class="hr"></div><p>Build a custom AI-powered training plan</p></div>
+  <div class="gsteps">
+    <div class="gstep active" id="gs1"><div class="gnum" id="gn1">1</div><span class="glbl">Categories</span></div>
+    <div class="gstep" id="gs2"><div class="gnum" id="gn2">2</div><span class="glbl">Topics</span></div>
+    <div class="gstep" id="gs3"><div class="gnum" id="gn3">3</div><span class="glbl">Configure</span></div>
+    <div class="gstep" id="gs4"><div class="gnum" id="gn4">4</div><span class="glbl">Your Plan</span></div>
+  </div>
+  <div id="gs-1">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Select one or more training categories:</p>
+    <div id="guest-cat-nudge" style="background:rgba(230,126,34,.1);border:1px solid rgba(230,126,34,.3);border-radius:var(--rs);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--orange);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <span>🔓 <strong>Preview mode:</strong> Select 1 category &amp; up to 2 topics to try the generator</span>
+      <button class="btn bp" style="font-size:11px;padding:5px 12px;white-space:nowrap" onclick="openAuth('signup')">Unlock All →</button>
+    </div>
+    <div class="cgrid">
+      <div class="ctile" data-cat="structure" onclick="toggleCat(this)"><div class="ctchk">✓</div><span class="ctico">🏠</span><div class="ctnm">Structure Fire</div><div class="ctdesc">Suppression, search &amp; rescue, ventilation, ICS</div></div>
+      <div class="ctile" data-cat="rescue" onclick="toggleCat(this)"><div class="ctchk">✓</div><span class="ctico">⚙️</span><div class="ctnm">Technical Rescue</div><div class="ctdesc">Extrication, rope, confined space, collapse, water</div></div>
+      <div class="ctile" data-cat="hazmat" onclick="toggleCat(this)"><div class="ctchk">✓</div><span class="ctico">☣️</span><div class="ctnm">Hazardous Materials</div><div class="ctdesc">ID, PPE, decon, response operations</div></div>
+      <div class="ctile" data-cat="ems" onclick="toggleCat(this)"><div class="ctchk">✓</div><span class="ctico">🚑</span><div class="ctnm">EMS</div><div class="ctdesc">Airway, cardiac, trauma, mass casualty</div></div>
+    </div>
+    <div style="margin-top:16px;display:flex;justify-content:flex-end">
+      <button class="btn bp bl" id="btn-nxt1" onclick="goStep(2)" disabled>Next: Topics →</button>
+    </div>
+  </div>
+  <div id="gs-2" style="display:none">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Choose specific topics:</p>
+    <div id="sc-container"></div>
+    <div class="fx sb mt16">
+      <button class="btn bg" onclick="goStep(1)">← Back</button>
+      <button class="btn bp bl" onclick="goStep(3)">Next: Configure →</button>
+    </div>
+  </div>
+  <div id="gs-3" style="display:none">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Set your training parameters:</p>
+    <div class="cfg">
+      <div class="fr"><label>Duration</label><select id="g-wks"><option value="4">4 Weeks</option><option value="8" selected>8 Weeks</option><option value="12">12 Weeks</option><option value="26">6 Months</option></select></div>
+      <div class="fr"><label>Sessions/Week</label><select id="g-freq"><option value="1">1x/week</option><option value="2" selected>2x/week</option><option value="3">3x/week</option></select></div>
+      <div class="fr"><label>Experience Level</label><select id="g-lvl"><option value="recruit">Recruit</option><option value="junior" selected>Firefighter I/II</option><option value="senior">Senior FF</option><option value="officer">Company Officer</option></select></div>
+      <div class="fr"><label>Session Length</label><select id="g-len"><option value="1">1 Hour</option><option value="2" selected>2 Hours</option><option value="3">3 Hours</option><option value="4">4 Hours (Full Drill)</option></select></div>
+    </div>
+    <div id="guest-cfg-nudge" style="display:none;background:rgba(230,126,34,.1);border:1px solid rgba(230,126,34,.3);border-radius:var(--rs);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--orange)">
+      🔓 <strong>Preview mode:</strong> Settings are fixed to a 4-week, 1x/week plan. <span style="text-decoration:underline;cursor:pointer" onclick="openAuth('signup')">Sign up free</span> to customize duration, frequency, experience level, and session length.
+    </div>
+    <div class="card mb12"><div class="cttl">Selected Topics</div><div id="topic-sum" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:8px"></div></div>
+    <div class="fx sb">
+      <button class="btn bg" onclick="goStep(2)">← Back</button>
+      <button class="btn bp bl" onclick="goStep(4)">⚡ Generate Plan</button>
+    </div>
+  </div>
+  <div id="gs-4" style="display:none">
+    <div class="planbox">
+      <div class="planhdr">
+        <h3 id="plan-title">Training Plan</h3>
+        <div style="display:flex;gap:8px">
+          <button class="btn bg" style="font-size:12px;padding:7px 12px" onclick="savePlan()">💾 Save</button>
+          <button class="btn bg" style="font-size:12px;padding:7px 12px" onclick="goStep(1)">New Plan</button>
+        </div>
+      </div>
+      <div class="planbd" id="plan-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOG -->
+<div class="page" id="page-log">
+  <div class="ph"><h1>Training Log</h1><div class="hr"></div><p>Document and track every session</p></div>
+  <div class="logform">
+    <h3>+ Log New Session</h3>
+    <div class="g2f mb12">
+      <div class="fr"><label>Session Title</label><input type="text" id="l-title" placeholder="e.g. Hoseline Deployment Drill"></div>
+      <div class="fr"><label>Date</label><input type="text" id="l-date"></div>
+      <div class="fr"><label>Category</label><select id="l-cat"><option value="structure">Structure Fire</option><option value="rescue">Technical Rescue</option><option value="hazmat">Hazardous Materials</option><option value="ems">EMS</option><option value="general">General</option></select></div>
+      <div class="fr"><label>Duration (hours)</label><input type="text" id="l-hrs" placeholder="e.g. 2"></div>
+      <div class="fr"><label>Score (1–100)</label><input type="text" id="l-score" placeholder="e.g. 85"></div>
+      <div class="fr"><label>Instructor</label><input type="text" id="l-inst" placeholder="Name or badge #"></div>
+    </div>
+    <div class="fr mb12"><label>Practical Skills Completed</label><input type="text" id="l-prac" placeholder="e.g. Hose deployment, SCBA donning, Nozzle operation"></div>
+    <div class="fr mb12"><label>Notes</label><textarea id="l-notes" placeholder="What went well? Areas for improvement..."></textarea></div>
+    <button class="btn bp" onclick="addLog()">Save Session →</button>
+  </div>
+  <div class="logfilt" id="log-filters">
+    <div class="fpill active" onclick="filterLog('all',this)">All</div>
+    <div class="fpill" onclick="filterLog('structure',this)">Structure</div>
+    <div class="fpill" onclick="filterLog('rescue',this)">Rescue</div>
+    <div class="fpill" onclick="filterLog('hazmat',this)">Hazmat</div>
+    <div class="fpill" onclick="filterLog('ems',this)">EMS</div>
+  </div>
+  <div class="logcards" id="log-cards"></div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div class="ph"><h1>My Profile</h1><div class="hr"></div><p>Manage your firefighter profile and certifications</p></div>
+  <div class="profhdr">
+    <div class="profav" id="prof-av">FF</div>
+    <div class="profinf">
+      <h2 id="pn-disp">Firefighter</h2>
+      <p id="pd-disp">Department not set</p>
+      <div class="profbdg">
+        <span class="pill pr" id="pr-disp">Rank not set</span>
+        <span class="pill pgr" id="py-disp">0 yrs</span>
+        <span class="pill pgl" id="pp-disp">Basic Plan</span>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="cttl">Edit Profile</div>
+      <div class="fr"><label>Full Name</label><input type="text" id="p-name" placeholder="First Last"></div>
+      <div class="fr mt8"><label>Department</label><input type="text" id="p-dept" placeholder="City Fire Department"></div>
+      <div class="fr mt8"><label>Rank</label><select id="p-rank"><option>Recruit / Probationary</option><option>Firefighter I</option><option>Firefighter II</option><option>Senior Firefighter</option><option>Driver / Engineer</option><option>Lieutenant</option><option>Captain</option><option>Battalion Chief</option><option>Deputy Chief</option><option>Fire Chief</option></select></div>
+      <div class="fr mt8"><label>Years of Service</label><input type="text" id="p-yrs" placeholder="e.g. 5"></div>
+      <div class="fr mt8"><label>Shift / Station</label><input type="text" id="p-sta" placeholder="e.g. A-Shift, Station 7"></div>
+      <div class="fr mt8"><label>Email</label><input type="email" id="p-email" placeholder="email@department.gov"></div>
+      <button class="btn bp mt16" onclick="saveProfile()">Save Profile</button>
+    </div>
+    <div>
+      <div class="card mb16">
+        <div class="cttl">Certifications</div>
+        <div id="cert-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
+        <div style="margin-top:12px;display:flex;gap:7px;flex-wrap:wrap">
+          <input type="text" id="nc-name" placeholder="Certification name" style="flex:1;min-width:100px">
+          <input type="text" id="nc-exp" placeholder="Exp date" style="width:95px">
+          <button class="btn bg" style="white-space:nowrap" onclick="addCert()">+ Add</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="cttl">Training Stats</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <div class="fx sb ic" style="font-size:13px"><span style="color:var(--muted)">Total Sessions</span><span style="font-weight:600" id="ps-sess">0</span></div>
+          <div class="fx sb ic" style="font-size:13px"><span style="color:var(--muted)">Total Hours</span><span style="font-weight:600" id="ps-hrs">0</span></div>
+          <div class="fx sb ic" style="font-size:13px"><span style="color:var(--muted)">Average Score</span><span style="font-weight:600" id="ps-avg">—</span></div>
+          <div class="fx sb ic" style="font-size:13px"><span style="color:var(--muted)">Plans Generated</span><span style="font-weight:600" id="ps-plans">0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSCRIPTION -->
+<div class="page" id="page-subscription">
+  <div class="ph"><h1>Subscription Plans</h1><div class="hr"></div><p>Choose the plan that fits your career stage</p></div>
+  <div class="sub-grid">
+    <div class="sub-card">
+      <div class="sub-ico">🪖</div><div class="sub-nm">Basic</div>
+      <div class="sub-pr">Free<span></span></div><div class="sub-per">Forever free</div>
+      <ul class="sub-feats">
+        <li class="yes"><span class="ck cky">✓</span>Firefighter profile</li>
+        <li class="yes"><span class="ck cky">✓</span>Training log (20 sessions)</li>
+        <li class="yes"><span class="ck cky">✓</span>Basic training generator</li>
+        <li class="yes"><span class="ck cky">✓</span>1 saved plan</li>
+        <li><span class="ck ckn">✗</span>AI-powered plans</li>
+        <li><span class="ck ckn">✗</span>Practical skills guidance</li>
+        <li><span class="ck ckn">✗</span>Progress analytics</li>
+        <li><span class="ck ckn">✗</span>Certification tracker</li>
+      </ul>
+      <button class="btn bg bw" id="sb-basic" onclick="selectPlan('basic')">Select Basic</button>
+      <span class="cur-tag" id="ct-basic" style="display:none">✓ Current Plan</span>
+    </div>
+    <div class="sub-card feat">
+      <div class="sub-badge">Most Popular</div>
+      <div class="sub-ico">🔥</div><div class="sub-nm">Pro</div>
+      <div class="sub-pr">$14<span>/mo</span></div><div class="sub-per">Billed monthly · Cancel anytime</div>
+      <ul class="sub-feats">
+        <li class="yes"><span class="ck cky">✓</span>Everything in Basic</li>
+        <li class="yes"><span class="ck cky">✓</span>Unlimited training log</li>
+        <li class="yes"><span class="ck cky">✓</span>AI-powered training plans</li>
+        <li class="yes"><span class="ck cky">✓</span>Practical skills per session</li>
+        <li class="yes"><span class="ck cky">✓</span>Up to 5 saved plans</li>
+        <li class="yes"><span class="ck cky">✓</span>Progress analytics</li>
+        <li class="yes"><span class="ck cky">✓</span>Certification tracker</li>
+        <li class="yes"><span class="ck cky">✓</span>Export plans as PDF</li>
+      </ul>
+      <button class="btn bp bw" id="sb-pro" onclick="selectPlan('pro')">Select Pro</button>
+      <span class="cur-tag" id="ct-pro" style="display:none">✓ Current Plan</span>
+    </div>
+    <div class="sub-card">
+      <div class="sub-ico">🏅</div><div class="sub-nm">Elite</div>
+      <div class="sub-pr">$39<span>/mo</span></div><div class="sub-per">Billed monthly · Cancel anytime</div>
+      <ul class="sub-feats">
+        <li class="yes"><span class="ck cky">✓</span>Everything in Pro</li>
+        <li class="yes"><span class="ck cky">✓</span>Unlimited saved plans</li>
+        <li class="yes"><span class="ck cky">✓</span>Department team management</li>
+        <li class="yes"><span class="ck cky">✓</span>Crew training assignments</li>
+        <li class="yes"><span class="ck cky">✓</span>Officer-level reporting</li>
+        <li class="yes"><span class="ck cky">✓</span>ISO compliance tracking</li>
+        <li class="yes"><span class="ck cky">✓</span>Priority support</li>
+        <li class="yes"><span class="ck cky">✓</span>Custom dept branding</li>
+      </ul>
+      <button class="btn bg bw" id="sb-elite" onclick="selectPlan('elite')">Select Elite</button>
+      <span class="cur-tag" id="ct-elite" style="display:none">✓ Current Plan</span>
+    </div>
+  </div>
+  <div class="card mt24" style="text-align:center;padding:18px">
+    <p style="font-size:13px;color:var(--muted)">🔒 Secure payment · 30-day money back · Cancel anytime</p>
+  </div>
+</div>
+
+</main>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bnav">
+  <button class="bnbtn active" id="bn-dashboard" onclick="navTo('dashboard')"><span class="bnico">📊</span><span class="bnlbl">Dashboard</span></button>
+  <button class="bnbtn" id="bn-generator" onclick="navTo('generator')"><span class="bnico">⚡</span><span class="bnlbl">Generate</span></button>
+  <button class="bnbtn" id="bn-log" onclick="navTo('log')"><span class="bnico">📋</span><span class="bnlbl">Log</span></button>
+  <button class="bnbtn" id="bn-profile" onclick="navTo('profile')"><span class="bnico">👤</span><span class="bnlbl">Profile</span></button>
+  <button class="bnbtn" id="bn-subscription" onclick="navTo('subscription')"><span class="bnico">⭐</span><span class="bnlbl">Plans</span></button>
+</nav>
+
+<!-- AUTH MODAL -->
+<div class="modal-bg" id="auth-modal">
+  <div class="modal">
+    <button class="mx" onclick="closeAuth()">✕</button>
+    <div id="login-form">
+      <h2>Sign In</h2><p class="sub">Welcome back to FireForge</p>
+      <div class="fr"><label>Email</label><input type="email" id="li-email" placeholder="you@department.gov"></div>
+      <div class="fr mt8"><label>Password</label><input type="password" id="li-pass" placeholder="••••••••"></div>
+      <button class="btn bp bw bl mt16" onclick="doLogin()">Sign In</button>
+      <div class="asw">Don't have an account? <span onclick="switchAuth('signup')">Create one →</span></div>
+    </div>
+    <div id="signup-form" style="display:none">
+      <h2>Create Account</h2><p class="sub">Start your FireForge journey</p>
+      <div class="g2f mb12">
+        <div><label>First Name</label><input type="text" id="su-first" placeholder="John"></div>
+        <div><label>Last Name</label><input type="text" id="su-last" placeholder="Smith"></div>
+      </div>
+      <div class="fr"><label>Email</label><input type="email" id="su-email" placeholder="you@department.gov"></div>
+      <div class="fr mt8"><label>Department</label><input type="text" id="su-dept" placeholder="City Fire Department"></div>
+      <div class="fr mt8"><label>Rank</label>
+        <select id="su-rank"><option>Recruit / Probationary</option><option>Firefighter I</option><option selected>Firefighter II</option><option>Senior Firefighter</option><option>Driver / Engineer</option><option>Lieutenant</option><option>Captain</option><option>Battalion Chief</option></select>
+      </div>
+      <div class="fr mt8"><label>Password</label><input type="password" id="su-pass" placeholder="Create a strong password"></div>
+      <button class="btn bp bw bl mt16" onclick="doSignup()">Create Account →</button>
+      <div class="asw">Have an account? <span onclick="switchAuth('login')">Sign in →</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+
+// ═══════════════════════════════════════════════════════════
+// CONFIGURATION — Replace these with your actual values
+// Get them from your Supabase project dashboard → Settings → API
+// and from your Stripe dashboard → Payment Links
+// ═══════════════════════════════════════════════════════════
+var CONFIG = {
+  // Supabase (required for real accounts & data)
+  SUPABASE_URL: 'https://YOUR-PROJECT-ID.supabase.co',
+  SUPABASE_ANON_KEY: 'YOUR-SUPABASE-ANON-KEY',
+
+  // Stripe Payment Links (paste the links from your Stripe dashboard)
+  STRIPE_PRO_LINK:   'https://buy.stripe.com/REPLACE_WITH_PRO_LINK',
+  STRIPE_ELITE_LINK: 'https://buy.stripe.com/REPLACE_WITH_ELITE_LINK',
+
+  // Set to true once you have filled in real values above
+  USE_SUPABASE: false
+};
+
+// Supabase client (loaded from CDN below — only active when USE_SUPABASE is true)
+var SB = null;
+function initSupabase() {
+  if (!CONFIG.USE_SUPABASE) return;
+  if (typeof supabase === 'undefined') { console.warn('Supabase SDK not loaded'); return; }
+  SB = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  // Listen for auth state changes (handles page refresh staying logged in)
+  SB.auth.onAuthStateChange(function(event, session) {
+    if (event === 'SIGNED_IN' && session && !S.user) {
+      loadUserFromSession(session);
+    } else if (event === 'SIGNED_OUT') {
+      S.user = null;
+    }
+  });
+}
+
+async function loadUserFromSession(session) {
+  var u = session.user;
+  // Load profile from Supabase
+  var resp = await SB.from('profiles').select('*').eq('id', u.id).single();
+  var profile = resp.data || {};
+  var userData = {
+    id: u.id,
+    firstName: profile.first_name || u.user_metadata.first_name || 'User',
+    lastName:  profile.last_name  || u.user_metadata.last_name  || '',
+    email: u.email,
+    dept: profile.department || '',
+    rank: profile.rank || 'Firefighter II',
+    planCount: profile.plan_count || 0
+  };
+  S.plan = profile.plan || 'basic';
+  localStorage.setItem('userPlan', S.plan);
+  // Load training log
+  var logResp = await SB.from('training_log').select('*').eq('user_id', u.id).order('created_at', {ascending:false});
+  S.log = (logResp.data || []).map(function(r) {
+    return {id:r.id, title:r.title, date:r.date, cat:r.category, hours:r.hours, score:r.score, instructor:r.instructor, practicals:r.practicals, notes:r.notes};
+  });
+  // Load certs
+  var certResp = await SB.from('certifications').select('*').eq('user_id', u.id);
+  S.certs = (certResp.data || []).map(function(r) {
+    return {id:r.id, name:r.name, exp:r.expiry, active:r.active};
+  });
+  S.profile = {name: userData.firstName+' '+userData.lastName, dept: userData.dept, rank: userData.rank};
+  loginUser(userData);
+}
+
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+var S = {
+  user: null,
+  plan: localStorage.getItem('userPlan') || 'basic',
+  log: JSON.parse(localStorage.getItem('trainingLog') || '[]'),
+  certs: JSON.parse(localStorage.getItem('certs') || '[]'),
+  profile: JSON.parse(localStorage.getItem('profileData') || '{}'),
+  planCount: parseInt(localStorage.getItem('planCount') || '0'),
+  cats: [],
+  topics: {},
+  curPlan: null
+};
+
+// ── DEMO DATA for guest preview ──
+var DEMO_LOG = [
+  {id:1,title:'Hoseline Deployment Drill',date:'04/28/2026',cat:'structure',hours:2,score:88,instructor:'Capt. Torres',practicals:'Deploy 200ft 1¾ line, nozzle operation, SCBA donning',notes:'Strong advancement technique. Work on nozzle shutoff speed.'},
+  {id:2,title:'Vehicle Extrication Training',date:'04/22/2026',cat:'rescue',hours:3,score:74,instructor:'Lt. Chen',practicals:'Hydraulic tool operation, door removal, roof displacement',notes:'Good tool handling. Practice disentanglement sequencing.'},
+  {id:3,title:'High-Performance CPR',date:'04/15/2026',cat:'ems',hours:2,score:95,instructor:'Paramedic Davis',practicals:'2-min CPR rotation, AED operation, 12-lead ECG',notes:'Excellent compression rate and depth throughout.'},
+  {id:4,title:'HAZMAT Recognition & PPE',date:'04/08/2026',cat:'hazmat',hours:2,score:81,instructor:'Capt. Rivera',practicals:'ERG lookup, Level B ensemble donning, buddy check',notes:'Improve time on Level B donning sequence.'},
+  {id:5,title:'Search & Rescue — VEIS',date:'04/01/2026',cat:'structure',hours:2,score:90,instructor:'Lt. Johnson',practicals:'VEIS entry, thermal camera sweep, victim packaging',notes:'Outstanding situational awareness under smoke conditions.'}
+];
+var DEMO_PROFILE = {name:'Alex Martinez',dept:'Riverside Fire Department',rank:'Firefighter II',years:'4',station:'B-Shift, Station 3'};
+
+var CATS = {
+  structure:{icon:'🏠',name:'Structure Fire'},
+  rescue:{icon:'⚙️',name:'Technical Rescue'},
+  hazmat:{icon:'☣️',name:'Hazardous Materials'},
+  ems:{icon:'🚑',name:'EMS'}
+};
+var CCOL = {structure:'#E74C3C',rescue:'#E67E22',hazmat:'#2ECC71',ems:'#5DADE2',general:'#8A9BAD'};
+var CCAT = {structure:'lcs',rescue:'lcr',hazmat:'lch',ems:'lce',general:'lcg'};
+var PBDG = {structure:'pbs',rescue:'pbr',hazmat:'pbh',ems:'pbe'};
+var PPLL = {structure:'pr',rescue:'po',hazmat:'pg',ems:'pb',general:'pgr'};
+
+var SUBCATS = {
+  structure:[
+    {name:'Fire Attack & Suppression',topics:['Hoseline Deployment & Advancement','Nozzle Techniques & Patterns','Foam Operations','High-Rise Fire Tactics','Large Diameter Hose Operations','Fire Behavior & Reading Smoke']},
+    {name:'Search & Rescue',topics:['Primary Search Methods','Secondary Search Techniques','Victim Packaging & Removal','VEIS (Vent-Enter-Isolate-Search)','Thermal Imaging Camera Operations','Mayday Procedures & RIT Activation']},
+    {name:'Ventilation',topics:['Positive Pressure Ventilation (PPV)','Hydraulic Ventilation','Vertical Ventilation (Roof Ops)','Horizontal Ventilation','Coordination with Attack Teams']},
+    {name:'Incident Command',topics:['ICS Structure & Roles','Accountability Systems','Rapid Intervention Team (RIT)','Incident Action Planning','Post-Incident Analysis']}
+  ],
+  rescue:[
+    {name:'Vehicle & Machinery',topics:['Auto Extrication Techniques','Heavy Vehicle Extrication','Hydraulic Tool Operation','Disentanglement Procedures','Complex Entrapment Scenarios']},
+    {name:'Rope & High Angle',topics:['Knots & Hitches Fundamentals','Anchor System Construction','Mechanical Advantage Hauling','High Angle Patient Evacuation','Low Angle Slope Rescue','Rappelling Operations']},
+    {name:'Confined Space',topics:['Atmospheric Monitoring & Testing','Entry Permit Procedures','Non-Entry Rescue Techniques','Tripod & Retrieval Systems','SCBA in Confined Space']},
+    {name:'Structural Collapse',topics:['Collapse Recognition & Assessment','Shoring Techniques','Tunnel & Breach Operations','Victim Location Methods','Triage in Collapse Environments']},
+    {name:'Water & Ice Rescue',topics:['Swift Water Awareness','Throw Bag & Reach Rescue','Shore-Based Rescue','Ice Rescue Techniques','Boat Operations & Safety']}
+  ],
+  hazmat:[
+    {name:'Recognition & Identification',topics:['DOT Placard System','Emergency Response Guidebook (ERG)','Container Types & Behavior','Chemical Properties & Hazards','Clue-Based Detection']},
+    {name:'PPE & Protection',topics:['Level A/B/C/D Suit Selection','SCBA Donning, Doffing & Checks','Splash Protection Procedures','Vapor Protection Operations','Buddy System & Safety Officer Role']},
+    {name:'Decontamination',topics:['Emergency Decon Procedures','Technical Decon Setup','Mass Casualty Decon Operations','Self-Decon Procedures','Decon Corridor Management']},
+    {name:'Response Operations',topics:['Isolation & Denial of Area','Evacuation vs Shelter-in-Place Decisions','Plugging & Patching Containers','Vapor Suppression Techniques','Flammable Gas Leak Response']},
+    {name:'Specific Hazards',topics:['Radiological/Nuclear Incidents','Biological Agent Response','Clandestine Drug Lab Ops','Anhydrous Ammonia Response','Chlorine Release Response']}
+  ],
+  ems:[
+    {name:'Airway Management',topics:['BVM Ventilation Techniques','Supraglottic Airway Insertion','Endotracheal Intubation','CPAP & BiPAP Application','Surgical Airway / Cric Procedure']},
+    {name:'Cardiac & Medical',topics:['High-Performance CPR','AED Operation & Placement','12-Lead ECG Acquisition','ACLS Algorithm Application','Stroke Recognition (BE-FAST)','Diabetic Emergency Management']},
+    {name:'Trauma Care',topics:['Tourniquet Application (CAT/SOFTT)','Wound Packing & Hemostatics','Needle Chest Decompression','Hemorrhage Control Methods','Burn Assessment & Management','Spinal Motion Restriction Decisions']},
+    {name:'Special Populations',topics:['Pediatric Assessment Triangle','OB Emergencies & Field Delivery','Geriatric Trauma Considerations','Behavioral Health Crisis Response']},
+    {name:'Mass Casualty',topics:['START Triage System','JumpSTART Pediatric Triage','MCI Incident Command','Treatment Sector Operations','Patient Tracking & Documentation']}
+  ]
+};
+
+// ═══════════════════════════════
+// MOBILE SIDEBAR
+// ═══════════════════════════════
+function toggleSB() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('ov-back').classList.toggle('show');
+}
+function closeSB() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('ov-back').classList.remove('show');
+}
+function isMob() { return window.innerWidth <= 768; }
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+function navTo(page) { closeSB(); showPage(page); }
+
+var GUEST_OVERLAY_INFO = {
+  dashboard: {ico:'📊', badge:'Live Preview', title:'Your Training Dashboard', sub:'This is a demo of what your dashboard looks like. Create a free account to track your real sessions, scores, and monthly goals.'},
+  generator:  {ico:'⚡', badge:'Interactive Preview', title:'AI Training Plan Generator', sub:'Pick categories and topics below — see how the plan generator works. Sign up to generate and save full personalized plans.'},
+  log:        {ico:'📋', badge:'Live Preview', title:'Training Log & Documentation', sub:'These are sample training entries. Create a free account to log your own sessions with scores, practical skills, and instructor notes.'},
+  profile:    {ico:'👤', badge:'Live Preview', title:'Your Firefighter Profile', sub:'This is a sample profile. Create a free account to build your own professional training record and certification tracker.'}
+};
+
+function showPage(page) {
+  // Show the page
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+
+  // Update sidebar nav highlight
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var ni = document.getElementById('ni-' + page);
+  if (ni) ni.classList.add('active');
+
+  // Update bottom nav highlight
+  document.querySelectorAll('.bnbtn').forEach(function(b){ b.classList.remove('active'); });
+  var bn = document.getElementById('bn-' + page);
+  if (bn) bn.classList.add('active');
+
+  // Populate page content
+  if (page === 'dashboard') refreshDash();
+  if (page === 'profile') refreshProfile();
+  if (page === 'log') renderLog();
+  if (page === 'subscription') refreshSub();
+  if (page === 'generator') {
+    var gcn = document.getElementById('guest-cat-nudge');
+    if (gcn) gcn.style.display = S.user ? 'none' : 'flex';
+  }
+
+  // Guest overlay
+  var gl = document.getElementById('guest-lock');
+  var previewPages = ['dashboard','log','profile'];
+  if (!S.user && previewPages.indexOf(page) >= 0) {
+    var info = GUEST_OVERLAY_INFO[page];
+    document.getElementById('gl-ico').textContent = info.ico;
+    document.getElementById('gl-badge').textContent = info.badge;
+    document.getElementById('gl-title').textContent = info.title;
+    document.getElementById('gl-sub').textContent = info.sub;
+    gl.classList.add('on');
+  } else {
+    gl.classList.remove('on');
+  }
+
+  // Landing full-width
+  var lp = document.getElementById('page-landing');
+  if (page === 'landing') {
+    lp.style.marginLeft = isMob() ? '0' : 'calc(-1*var(--sw))';
+    lp.style.width = isMob() ? '100%' : 'calc(100% + var(--sw))';
+  }
+
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════
+// AUTH
+// ═══════════════════════════════
+function openAuth(mode) {
+  document.getElementById('auth-modal').classList.add('open');
+  switchAuth(mode);
+}
+function closeAuth() { document.getElementById('auth-modal').classList.remove('open'); }
+function switchAuth(mode) {
+  document.getElementById('login-form').style.display = mode === 'login' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = mode === 'signup' ? 'block' : 'none';
+}
+
+function doLogin() {
+  var email = document.getElementById('li-email').value.trim();
+  var pass  = document.getElementById('li-pass').value;
+  if (!email || !pass) { toast('Please fill in all fields', 'e'); return; }
+
+  if (CONFIG.USE_SUPABASE && SB) {
+    // Real Supabase authentication
+    SB.auth.signInWithPassword({ email: email, password: pass }).then(function(result) {
+      if (result.error) { toast(result.error.message || 'Invalid credentials', 'e'); return; }
+      loadUserFromSession(result.data.session);
+    });
+    return;
+  }
+
+  // Fallback localStorage auth (for local testing before Supabase is set up)
+  var saved = JSON.parse(localStorage.getItem('userData') || 'null');
+  if (saved && saved.email === email && saved.pass === pass) {
+    loginUser(saved);
+  } else if (!saved) {
+    var u = {firstName:'Demo',lastName:'Firefighter',email:email,pass:pass,dept:'Demo Fire Dept',rank:'Firefighter II'};
+    localStorage.setItem('userData', JSON.stringify(u));
+    loginUser(u);
+  } else {
+    toast('Invalid credentials', 'e');
+  }
+}
+
+function doSignup() {
+  var first = document.getElementById('su-first').value.trim();
+  var last  = document.getElementById('su-last').value.trim();
+  var email = document.getElementById('su-email').value.trim();
+  var dept  = document.getElementById('su-dept').value.trim();
+  var rank  = document.getElementById('su-rank').value;
+  var pass  = document.getElementById('su-pass').value;
+  if (!first || !last || !email || !pass) { toast('Please fill in all required fields', 'e'); return; }
+
+  if (CONFIG.USE_SUPABASE && SB) {
+    // Real Supabase signup
+    SB.auth.signUp({
+      email: email,
+      password: pass,
+      options: { data: { first_name: first, last_name: last, department: dept, rank: rank } }
+    }).then(function(result) {
+      if (result.error) { toast(result.error.message || 'Signup failed', 'e'); return; }
+      if (result.data.user && !result.data.session) {
+        toast('Check your email to confirm your account!');
+        closeAuth();
+        return;
+      }
+      if (result.data.session) { loadUserFromSession(result.data.session); }
+    });
+    return;
+  }
+
+  // Fallback localStorage signup
+  var u = {firstName:first,lastName:last,email:email,dept:dept,rank:rank,pass:pass};
+  localStorage.setItem('userData', JSON.stringify(u));
+  loginUser(u);
+  toast('Welcome to FireForge, ' + first + '!');
+}
+
+function loginUser(user) {
+  S.user = user;
+  S.profile = Object.assign({name:user.firstName+' '+user.lastName, dept:user.dept, rank:user.rank}, S.profile);
+  closeAuth();
+  document.getElementById('sb-guest').style.display = 'none';
+  document.getElementById('sb-user').style.display = 'block';
+  document.getElementById('sb-footer').style.display = 'block';
+  document.getElementById('ni-signin').style.display = 'none';
+  document.getElementById('ni-signout').style.display = 'flex';
+  // Hide all PREVIEW chips
+  ['dashboard','generator','log','profile'].forEach(function(p) {
+    var chip = document.getElementById('pc-' + p);
+    if (chip) chip.style.display = 'none';
+  });
+  // Re-enable any locked selects
+  ['g-wks','g-freq','g-lvl','g-len'].forEach(function(id){
+    var sel = document.getElementById(id);
+    if (sel) { sel.disabled=false; sel.style.opacity='1'; sel.style.cursor=''; }
+  });
+  // Reset cat selections so guest demo state is cleared
+  S.cats = [];
+  S.topics = {};
+  document.querySelectorAll('.ctile.sel').forEach(function(t){ t.classList.remove('sel'); });
+  document.getElementById('btn-nxt1').disabled = true;
+  updateSB();
+  showPage('dashboard');
+  toast('Welcome back, ' + user.firstName + '!');
+}
+
+function doLogout() {
+  if (CONFIG.USE_SUPABASE && SB) { SB.auth.signOut(); }
+  S.user = null;
+  S.log = [];
+  S.certs = [];
+  S.profile = {};
+  S.plan = 'basic';
+  document.getElementById('sb-guest').style.display = 'block';
+  document.getElementById('sb-user').style.display = 'none';
+  document.getElementById('sb-footer').style.display = 'none';
+  document.getElementById('ni-signin').style.display = 'flex';
+  document.getElementById('ni-signout').style.display = 'none';
+  ['dashboard','generator','log','profile'].forEach(function(p) {
+    var chip = document.getElementById('pc-' + p);
+    if (chip) chip.style.display = 'inline-block';
+  });
+  closeSB();
+  showPage('dashboard');
+}
+
+function updateSB() {
+  if (!S.user) return;
+  var name = S.profile.name || (S.user.firstName + ' ' + S.user.lastName);
+  var ini = name.split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
+  document.getElementById('sb-av').textContent = ini;
+  document.getElementById('sb-name').textContent = name;
+  document.getElementById('sb-rank').textContent = S.profile.rank || S.user.rank || 'Firefighter';
+  var b = document.getElementById('sb-badge');
+  b.textContent = {basic:'Basic',pro:'Pro',elite:'Elite'}[S.plan] || 'Basic';
+  b.className = 'u-badge badge-' + S.plan;
+  document.getElementById('sb-footer').style.display = S.plan === 'basic' ? 'block' : 'none';
+}
+
+// ═══════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════
+function refreshDash() {
+  var log = S.user ? S.log : DEMO_LOG;
+  var name = S.user ? (S.profile.name || S.user.firstName) : 'Preview';
+  document.getElementById('dash-name').textContent = S.user ? ('Welcome back, ' + name) : '👁️ Preview — Dashboard';
+  document.getElementById('dash-sub').textContent = S.user ? "Here's your training overview" : 'Sample data showing how your dashboard will look';
+
+  document.getElementById('st-tot').textContent = log.length;
+  var hrs = log.reduce(function(s,e){ return s + parseFloat(e.hours||0); }, 0);
+  document.getElementById('st-hrs').textContent = hrs.toFixed(1);
+  var sc = log.filter(function(e){ return e.score; });
+  var avg = sc.length ? Math.round(sc.reduce(function(s,e){ return s + parseInt(e.score); }, 0) / sc.length) : null;
+  document.getElementById('st-avg').textContent = avg ? avg + '%' : '—';
+
+  var now = new Date();
+  var mo = log.filter(function(e){ var d=new Date(e.date); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); });
+  var goal=8, done=mo.length, pct=Math.min(100,Math.round(done/goal*100));
+  document.getElementById('goal-txt').textContent = done + ' of ' + goal + ' sessions this month';
+  document.getElementById('ring-pct').textContent = pct + '%';
+  document.getElementById('ring-fill').style.strokeDashoffset = 182.2 - (pct/100*182.2);
+
+  var recent = log.slice(-5).reverse();
+  var rl = document.getElementById('recent-list');
+  if (!recent.length) {
+    rl.innerHTML = '<p style="font-size:13px;color:var(--muted);padding:8px 0">No sessions yet.</p>';
+  } else {
+    rl.innerHTML = recent.map(function(s) {
+      return '<div class="srow"><div class="sdot" style="background:' + (CCOL[s.cat]||'#8A9BAD') + '"></div><div class="sinf"><div class="sttl">' + s.title + '</div><div class="smet">' + s.date + ' &middot; ' + (s.hours||0) + 'h &middot; ' + (CATS[s.cat]?CATS[s.cat].name:s.cat) + '</div></div>' + (s.score ? '<div class="ssc" style="color:' + (s.score>=80?'#2ECC71':s.score>=60?'#E67E22':'#E74C3C') + '">' + s.score + '%</div>' : '') + '</div>';
+    }).join('');
+  }
+
+  var cc = {};
+  log.forEach(function(e){ cc[e.cat] = (cc[e.cat]||0)+1; });
+  var tot = log.length || 1;
+  var bd = document.getElementById('cat-bdown');
+  if (!Object.keys(cc).length) {
+    bd.innerHTML = '<p style="font-size:13px;color:var(--muted);padding:8px 0">Log sessions to see your split.</p>';
+  } else {
+    bd.innerHTML = Object.keys(cc).map(function(c) {
+      return '<div style="margin-bottom:10px"><div class="fx sb" style="font-size:12px;margin-bottom:4px"><span style="color:var(--muted)">' + (CATS[c]?CATS[c].name:c) + '</span><span style="font-weight:600">' + cc[c] + '</span></div><div style="height:4px;background:var(--steel3);border-radius:3px"><div style="height:4px;border-radius:3px;background:' + (CCOL[c]||'#8A9BAD') + ';width:' + Math.round(cc[c]/tot*100) + '%;transition:width .5s"></div></div></div>';
+    }).join('');
+  }
+
+  // Profile stats
+  document.getElementById('ps-sess').textContent = log.length;
+  document.getElementById('ps-hrs').textContent = hrs.toFixed(1);
+  document.getElementById('ps-avg').textContent = avg ? avg + '%' : '—';
+  document.getElementById('ps-plans').textContent = S.user ? S.planCount : 3;
+}
+
+// ═══════════════════════════════
+// GENERATOR
+// ═══════════════════════════════
+function toggleCat(el) {
+  var cat = el.dataset.cat;
+  var idx = S.cats.indexOf(cat);
+  if (idx >= 0) {
+    S.cats.splice(idx,1);
+    el.classList.remove('sel');
+  } else {
+    // Guests limited to 1 category
+    if (!S.user && S.cats.length >= 1) {
+      toast('Sign up free to select multiple categories!', 'e');
+      return;
+    }
+    S.cats.push(cat);
+    el.classList.add('sel');
+  }
+  document.getElementById('btn-nxt1').disabled = S.cats.length === 0;
+}
+
+function goStep(step) {
+  for (var i=1; i<=4; i++) {
+    document.getElementById('gs-' + i).style.display = i===step ? 'block' : 'none';
+    var gs = document.getElementById('gs' + i);
+    var gn = document.getElementById('gn' + i);
+    gs.classList.remove('active','done');
+    gn.classList.remove('done');
+    if (i === step) gs.classList.add('active');
+    else if (i < step) { gs.classList.add('done'); gn.classList.add('done'); gn.textContent = '✓'; }
+    else gn.textContent = i;
+  }
+  if (step === 2) buildSubcats();
+  if (step === 3) buildTopicSum();
+  if (step === 4) doGenerate();
+  window.scrollTo(0,0);
+}
+
+function buildSubcats() {
+  var c = document.getElementById('sc-container');
+  c.innerHTML = '';
+  S.topics = {};
+  S.cats.forEach(function(cat) {
+    S.topics[cat] = [];
+    SUBCATS[cat].forEach(function(g, gi) {
+      var d = document.createElement('div');
+      d.className = 'scpanel';
+      var isOpen = gi===0;
+      var topicHtml = g.topics.map(function(t) {
+        return '<div class="tpill" data-cat="' + cat + '" data-t="' + t + '" onclick="toggleT(this)">' + t + '</div>';
+      }).join('');
+      d.innerHTML = '<div class="schdr" onclick="toggleSG(this)"><span style="font-size:13px">' + CATS[cat].icon + '</span><span class="scnm">' + g.name + '</span><span class="scarr">' + (isOpen?'▴':'▾') + '</span></div><div class="scbody' + (isOpen?'':' closed') + '">' + topicHtml + '</div>';
+      c.appendChild(d);
+    });
+  });
+}
+
+function toggleSG(h) {
+  var body = h.nextElementSibling;
+  var arr = h.querySelector('.scarr');
+  body.classList.toggle('closed');
+  arr.textContent = body.classList.contains('closed') ? '▾' : '▴';
+}
+
+function guestTopicCount() {
+  var total = 0;
+  Object.keys(S.topics).forEach(function(c){ total += S.topics[c].length; });
+  return total;
+}
+function toggleT(p) {
+  var cat = p.dataset.cat, t = p.dataset.t;
+  if (!S.topics[cat]) S.topics[cat] = [];
+  var idx = S.topics[cat].indexOf(t);
+  if (idx >= 0) {
+    S.topics[cat].splice(idx,1);
+    p.classList.remove('sel');
+  } else {
+    // Guests limited to 2 topics
+    if (!S.user && guestTopicCount() >= 2) {
+      toast('Sign up free to select more topics!', 'e');
+      return;
+    }
+    S.topics[cat].push(t);
+    p.classList.add('sel');
+  }
+}
+
+function buildTopicSum() {
+  var el = document.getElementById('topic-sum');
+  var all = [];
+  Object.keys(S.topics).forEach(function(c) { S.topics[c].forEach(function(t){ all.push({c:c,t:t}); }); });
+  if (!all.length) {
+    el.innerHTML = '<p style="font-size:13px;color:var(--muted)">No topics selected — AI will pick appropriate ones.</p>';
+  } else {
+    el.innerHTML = all.map(function(x){ return '<span class="pbadge ' + (PBDG[x.c]||'pbs') + '">' + x.t + '</span>'; }).join('');
+  }
+  // Show/hide guest limit nudge in configure step
+  var nudge = document.getElementById('guest-cfg-nudge');
+  if (!nudge) return;
+  nudge.style.display = S.user ? 'none' : 'block';
+  // Lock configure selects for guests
+  var locks = ['g-wks','g-freq','g-lvl','g-len'];
+  locks.forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    if (!S.user) {
+      sel.disabled = true;
+      sel.style.opacity = '0.5';
+      sel.style.cursor = 'not-allowed';
+    } else {
+      sel.disabled = false;
+      sel.style.opacity = '1';
+      sel.style.cursor = '';
+    }
+  });
+  // Force guest defaults
+  if (!S.user) {
+    document.getElementById('g-wks').value = '4';
+    document.getElementById('g-freq').value = '1';
+    document.getElementById('g-lvl').value = 'junior';
+    document.getElementById('g-len').value = '2';
+  }
+}
+
+function doGenerate() {
+  var wks = parseInt(document.getElementById('g-wks').value) || 8;
+  var freq = parseInt(document.getElementById('g-freq').value) || 2;
+  var lvl = document.getElementById('g-lvl').value || 'junior';
+  var len = document.getElementById('g-len').value || '2';
+  var lvlLbl = {recruit:'Recruit / Probationary',junior:'Firefighter I/II',senior:'Senior Firefighter',officer:'Company Officer'}[lvl];
+
+  document.getElementById('plan-title').textContent = wks + '-Week ' + lvlLbl + ' Plan' + (!S.user?' (Preview)':'');
+  document.getElementById('plan-content').innerHTML = '<div style="text-align:center;padding:48px 20px"><div class="spinner"></div><p style="font-size:14px;color:var(--muted)">Building your plan with practical skills...</p></div>';
+
+  if (!S.user) {
+    // Show demo plan for guests
+    setTimeout(function() {
+      document.getElementById('plan-content').innerHTML =
+        '<div style="margin-bottom:22px">' +
+        '<div class="pwkhdr">Week 1 — Foundations &amp; Fundamentals</div>' +
+        '<div class="psess"><div class="pday">Monday</div><div>' +
+        '<div class="pttl">Hoseline Deployment &amp; Advancement</div>' +
+        '<div class="pobj">2 hours &middot; Master hoseline pull, advancement technique, and flow rates</div>' +
+        '<div style="font-size:11px;color:var(--dim);margin-bottom:5px">📦 1¾" attack line, nozzle, SCBA, PPE</div>' +
+        '<div class="pprac"><div class="ppraclbl">✅ Practical Skills</div><div class="ppracitm">• Pull and deploy 200ft 1¾" attack line from apparatus in under 90 seconds<br>• Advance charged line up one flight of stairs in full PPE and SCBA<br>• Demonstrate nozzle pattern transitions: straight stream to fog</div></div>' +
+        '<div style="font-size:11px;color:var(--dim);margin-top:5px;font-style:italic">📊 Time trials + nozzle technique evaluation</div>' +
+        '</div><div><span class="pbadge pbs">Structure Fire</span></div></div>' +
+        '<div class="psess"><div class="pday">Thursday</div><div>' +
+        '<div class="pttl">SCBA Operations &amp; Emergency Procedures</div>' +
+        '<div class="pobj">2 hours &middot; Build proficiency with SCBA donning and emergency protocols</div>' +
+        '<div style="font-size:11px;color:var(--dim);margin-bottom:5px">📦 SCBA units, donning area, timer</div>' +
+        '<div class="pprac"><div class="ppraclbl">✅ Practical Skills</div><div class="ppracitm">• Don SCBA from stored position in under 60 seconds<br>• Navigate 50ft obstacle course in blackout conditions<br>• Practice emergency PASS activation and Mayday radio transmission</div></div>' +
+        '</div><div><span class="pbadge pbs">Structure Fire</span></div></div>' +
+        '</div>' +
+        '<div class="lock-box">' +
+        '<div style="font-size:24px;margin-bottom:8px">🔒</div>' +
+        '<div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:700;text-transform:uppercase;margin-bottom:6px">Full ' + wks + '-Week Plan Locked</div>' +
+        '<div style="font-size:13px;color:var(--muted);margin-bottom:14px">Create a free account to generate your complete AI-powered plan with all ' + (wks*freq) + ' sessions, practical skills, equipment lists, and evaluations.</div>' +
+        '<button class="btn bp" onclick="openAuth(\'signup\')">Create Free Account →</button>' +
+        '</div>';
+    }, 1200);
+    return;
+  }
+
+  // Real AI generation for logged-in users
+  var all = [];
+  Object.keys(S.topics).forEach(function(c){ S.topics[c].forEach(function(t){ all.push({c:c,t:t}); }); });
+  var topStr = all.length > 0
+    ? all.map(function(x){ return CATS[x.c].name + ': ' + x.t; }).join(', ')
+    : S.cats.map(function(c){ return CATS[c].name; }).join(', ');
+
+  var prompt = 'You are a fire service training officer. Create a ' + wks + '-week plan for ' + lvlLbl + ' firefighters. ' + len + ' hours/session, ' + freq + 'x/week. Topics: ' + topStr + '\n\nReturn ONLY valid JSON (no markdown, no backticks):\n{"weeks":[{"week":1,"theme":"4-6 word theme","sessions":[{"day":"Monday","title":"Title","category":"structure","duration":"' + len + ' hour(s)","objective":"One sentence","practical_skills":["Specific action 1","Specific action 2","Specific action 3"],"equipment_needed":"Equipment","evaluation_criteria":"Assessment method"}]}]}\n\nRules: exactly ' + freq + ' sessions/week for ' + wks + ' weeks. practical_skills must be SPECIFIC hands-on activities. Build progressively. category must be: structure, rescue, hazmat, or ems.';
+
+  // Use the secure Netlify function proxy (keeps API key server-side)
+  // Falls back to direct call for local development
+  var apiUrl = (typeof netlify !== 'undefined' || window.location.hostname !== 'localhost')
+    ? '/.netlify/functions/ai-plan'
+    : 'https://api.anthropic.com/v1/messages';
+  var fetchBody = apiUrl.indexOf('netlify') >= 0
+    ? JSON.stringify({ prompt: prompt, max_tokens: 1500 })
+    : JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:1500, messages:[{role:'user',content:prompt}]});
+
+  fetch(apiUrl, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: fetchBody
+  }).then(function(r){ return r.json(); }).then(function(d) {
+    var raw = d.content.map(function(i){ return i.text||''; }).join('').trim().replace(/```json|```/g,'').trim();
+    var plan = JSON.parse(raw);
+    S.curPlan = plan;
+    renderPlan(plan);
+    S.planCount++;
+    localStorage.setItem('planCount', S.planCount);
+  }).catch(function() {
+    renderFallback(wks, freq, all, len);
+  });
+}
+
+function renderPlan(plan) {
+  document.getElementById('plan-content').innerHTML = plan.weeks.map(function(w) {
+    return '<div style="margin-bottom:22px"><div class="pwkhdr">Week ' + w.week + ' — ' + (w.theme||'') + '</div>' +
+      w.sessions.map(function(s) {
+        return '<div class="psess"><div class="pday">' + s.day + '</div><div>' +
+          '<div class="pttl">' + s.title + '</div>' +
+          '<div class="pobj">' + s.duration + ' &middot; ' + s.objective + '</div>' +
+          (s.equipment_needed ? '<div style="font-size:11px;color:var(--dim);margin-bottom:5px">📦 ' + s.equipment_needed + '</div>' : '') +
+          (s.practical_skills && s.practical_skills.length ? '<div class="pprac"><div class="ppraclbl">✅ Practical Skills</div><div class="ppracitm">' + s.practical_skills.map(function(k){ return '• '+k; }).join('<br>') + '</div></div>' : '') +
+          (s.evaluation_criteria ? '<div style="font-size:11px;color:var(--dim);margin-top:5px;font-style:italic">📊 ' + s.evaluation_criteria + '</div>' : '') +
+          '</div><div><span class="pbadge ' + (PBDG[s.category]||'pbs') + '">' + (CATS[s.category]?CATS[s.category].name:s.category) + '</span></div></div>';
+      }).join('') + '</div>';
+  }).join('');
+}
+
+function renderFallback(wks, freq, topics, len) {
+  var days = ['Monday','Wednesday','Friday','Tuesday','Thursday'];
+  var fp = {
+    structure:['Deploy and advance 1¾" hoseline 100ft from apparatus','SCBA donning in under 1 minute under stress','Thermal imaging sweep of simulated structure'],
+    rescue:['Set up 3:1 mechanical advantage rope system','Victim packaging with KED or backboard','Atmospheric monitoring with CGI meter'],
+    hazmat:['Don and doff Level B ensemble with buddy check','Set up emergency decon corridor','Reference ERG for 3 unknown chemical scenarios'],
+    ems:['High-performance CPR with metronome for 2 minutes','Apply tourniquet in under 60 seconds','12-lead ECG acquisition on mannequin']
+  };
+  var html = '';
+  for (var w=1; w<=Math.min(wks,4); w++) {
+    html += '<div style="margin-bottom:22px"><div class="pwkhdr">Week ' + w + '</div>';
+    for (var s=0; s<freq; s++) {
+      var t = topics.length > 0 ? topics[(w*freq+s) % topics.length] : {c:S.cats[0]||'structure',t:'General Training'};
+      var p = fp[t.c] || fp.structure;
+      html += '<div class="psess"><div class="pday">' + days[s%days.length] + '</div><div><div class="pttl">' + t.t + '</div><div class="pobj">' + len + ' hour(s) &middot; Skills review and practical application</div><div class="pprac"><div class="ppraclbl">✅ Practical Skills</div><div class="ppracitm">' + p.map(function(k){ return '• '+k; }).join('<br>') + '</div></div></div><div><span class="pbadge ' + (PBDG[t.c]||'pbs') + '">' + (CATS[t.c]?CATS[t.c].name:t.c) + '</span></div></div>';
+    }
+    html += '</div>';
+  }
+  document.getElementById('plan-content').innerHTML = html;
+}
+
+function savePlan() { toast('Training plan saved!'); }
+
+// ═══════════════════════════════
+// LOG
+// ═══════════════════════════════
+function addLog() {
+  if (!S.user) { openAuth('signup'); return; }
+  var title = document.getElementById('l-title').value.trim();
+  var date  = document.getElementById('l-date').value.trim();
+  if (!title || !date) { toast('Title and date are required', 'e'); return; }
+  var entry = {
+    id: Date.now(), title:title, date:date,
+    cat:   document.getElementById('l-cat').value,
+    hours: parseFloat(document.getElementById('l-hrs').value) || 0,
+    score: document.getElementById('l-score').value ? parseInt(document.getElementById('l-score').value) : null,
+    instructor: document.getElementById('l-inst').value.trim(),
+    practicals: document.getElementById('l-prac').value.trim(),
+    notes: document.getElementById('l-notes').value.trim()
+  };
+  if (CONFIG.USE_SUPABASE && SB && S.user) {
+    SB.from('training_log').insert({
+      user_id: S.user.id,
+      title: entry.title, date: entry.date, category: entry.cat,
+      hours: entry.hours, score: entry.score, instructor: entry.instructor,
+      practicals: entry.practicals, notes: entry.notes
+    }).then(function(result) {
+      if (result.error) { toast('Error saving session', 'e'); return; }
+      S.log.unshift(entry);
+      renderLog();
+      toast('Training session logged!');
+    });
+  } else {
+    S.log.push(entry);
+    localStorage.setItem('trainingLog', JSON.stringify(S.log));
+    renderLog();
+    toast('Training session logged!');
+  }
+  ['l-title','l-hrs','l-score','l-inst','l-prac','l-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+}
+
+var logF = 'all';
+function filterLog(f, el) {
+  logF = f;
+  document.querySelectorAll('.fpill').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+  renderLog();
+}
+
+function renderLog() {
+  var baseLog = S.user ? S.log : DEMO_LOG;
+  var log = baseLog.filter(function(e){ return logF==='all' || e.cat===logF; }).slice().reverse();
+  var c = document.getElementById('log-cards');
+  if (!log.length) {
+    c.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted);font-size:13px;background:var(--surf);border:1px solid var(--border);border-radius:var(--r)">No sessions found.</div>';
+    return;
+  }
+  c.innerHTML = log.map(function(e) {
+    var sc = e.score>=80?'sex':e.score>=60?'sgd':'slw';
+    return '<div class="lcard ' + (CCAT[e.cat]||'lcg') + '">' +
+      '<div class="lchead"><div><div class="lcttl">' + e.title + '</div><div class="lcdate">' + e.date + (e.instructor?' &middot; '+e.instructor:'') + '</div></div>' +
+      (e.score ? '<div class="lcscore ' + sc + '">' + e.score + '%</div>' : '') + '</div>' +
+      '<div class="lcmeta"><span class="pill ' + (PPLL[e.cat]||'pgr') + '">' + (CATS[e.cat]?CATS[e.cat].name:e.cat||'General') + '</span>' + (e.hours?'<span class="lctag">'+e.hours+'h</span>':'') + '</div>' +
+      (e.practicals ? '<div class="lcprac"><strong>Practicals Completed</strong>' + e.practicals + '</div>' : '') +
+      (e.notes ? '<div style="font-size:12px;color:var(--muted);margin-top:6px;font-style:italic">' + e.notes + '</div>' : '') +
+      '</div>';
+  }).join('');
+}
+
+// ═══════════════════════════════
+// PROFILE
+// ═══════════════════════════════
+function refreshProfile() {
+  var p = S.user ? S.profile : DEMO_PROFILE;
+  document.getElementById('p-name').value = p.name||'';
+  document.getElementById('p-dept').value = p.dept||'';
+  document.getElementById('p-yrs').value  = p.years||'';
+  document.getElementById('p-sta').value  = p.station||'';
+  document.getElementById('p-email').value= p.email||'';
+  if (p.rank) {
+    var sel = document.getElementById('p-rank');
+    for (var i=0; i<sel.options.length; i++) { if (sel.options[i].text===p.rank) sel.selectedIndex=i; }
+  }
+  updateProfDisp(p);
+  renderCerts();
+  refreshDash();
+}
+
+function saveProfile() {
+  if (!S.user) { openAuth('signup'); return; }
+  S.profile = Object.assign({}, S.profile, {
+    name:    document.getElementById('p-name').value.trim(),
+    dept:    document.getElementById('p-dept').value.trim(),
+    rank:    document.getElementById('p-rank').value,
+    years:   document.getElementById('p-yrs').value.trim(),
+    station: document.getElementById('p-sta').value.trim(),
+    email:   document.getElementById('p-email').value.trim()
+  });
+  if (CONFIG.USE_SUPABASE && SB && S.user) {
+    SB.from('profiles').update({
+      first_name: S.profile.name.split(' ')[0] || '',
+      last_name:  S.profile.name.split(' ').slice(1).join(' ') || '',
+      department: S.profile.dept,
+      rank:       S.profile.rank,
+      years_service: S.profile.years,
+      station:    S.profile.station
+    }).eq('id', S.user.id).then(function(result) {
+      if (result.error) { toast('Error saving profile', 'e'); return; }
+      toast('Profile saved!');
+    });
+  } else {
+    localStorage.setItem('profileData', JSON.stringify(S.profile));
+    toast('Profile saved!');
+  }
+  updateProfDisp(S.profile);
+  updateSB();
+}
+
+function updateProfDisp(p) {
+  var name = p.name || 'Firefighter';
+  document.getElementById('pn-disp').textContent = S.user ? name : name + ' (Demo)';
+  document.getElementById('pd-disp').textContent = p.dept || 'Department not set';
+  document.getElementById('pr-disp').textContent = p.rank || 'Rank not set';
+  document.getElementById('py-disp').textContent = (p.years||'0') + ' yrs experience';
+  document.getElementById('pp-disp').textContent = {basic:'Basic Plan',pro:'Pro Plan',elite:'Elite Plan'}[S.plan] || 'Basic Plan';
+  document.getElementById('prof-av').textContent = name.split(' ').map(function(n){ return n[0]; }).join('').substring(0,2).toUpperCase();
+}
+
+function addCert() {
+  if (!S.user) { openAuth('signup'); return; }
+  var name = document.getElementById('nc-name').value.trim();
+  var exp  = document.getElementById('nc-exp').value.trim();
+  if (!name) return;
+  var newCert = {id:Date.now(),name:name,exp:exp,active:true};
+  if (CONFIG.USE_SUPABASE && SB && S.user) {
+    SB.from('certifications').insert({
+      user_id: S.user.id, name: name, expiry: exp, active: true
+    }).then(function(result) {
+      if (result.error) { toast('Error saving certification', 'e'); return; }
+      S.certs.push(newCert);
+      renderCerts();
+      toast('Certification added!');
+    });
+  } else {
+    S.certs.push(newCert);
+    localStorage.setItem('certs', JSON.stringify(S.certs));
+    renderCerts();
+    toast('Certification added!');
+  }
+  document.getElementById('nc-name').value = '';
+  document.getElementById('nc-exp').value = '';
+}
+
+function renderCerts() {
+  var defs = [
+    {name:'Firefighter I',exp:'Lifetime',active:true},
+    {name:'Firefighter II',exp:'Lifetime',active:true},
+    {name:'CPR / AED',exp:'04/2026',active:true},
+    {name:'HAZMAT Operations',exp:'08/2025',active:false}
+  ];
+  var all = defs.concat(S.certs);
+  document.getElementById('cert-list').innerHTML = all.map(function(c) {
+    return '<div class="certcard"><div class="certico">🏅</div><div><div class="certnm">' + c.name + '</div><div class="certexp">Expires: ' + (c.exp||'N/A') + '</div></div><span class="certst ' + (c.active?'csa':'cse') + '">' + (c.active?'Active':'Expiring') + '</span></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════
+// SUBSCRIPTION
+// ═══════════════════════════════
+function refreshSub() {
+  var p = S.plan;
+  ['basic','pro','elite'].forEach(function(x) {
+    document.getElementById('ct-' + x).style.display = x===p ? 'block' : 'none';
+    var btn = document.getElementById('sb-' + x);
+    btn.textContent = x===p ? 'Current Plan' : x==='pro' ? 'Select Pro' : x==='elite' ? 'Select Elite' : 'Select Basic';
+  });
+}
+
+function selectPlan(p) {
+  if (p === 'basic') {
+    // Basic is always free — just update locally
+    S.plan = 'basic';
+    localStorage.setItem('userPlan', 'basic');
+    refreshSub();
+    updateSB();
+    toast('Switched to Basic plan');
+    return;
+  }
+  if (!S.user) { openAuth('signup'); return; }
+  // Redirect to Stripe for paid plans
+  var link = p === 'pro' ? CONFIG.STRIPE_PRO_LINK : CONFIG.STRIPE_ELITE_LINK;
+  if (link.indexOf('REPLACE') >= 0) {
+    // Stripe not configured yet — simulate for testing
+    S.plan = p;
+    localStorage.setItem('userPlan', p);
+    refreshSub();
+    updateSB();
+    toast('Plan updated to ' + ({pro:'Pro',elite:'Elite'}[p]) + '! (Stripe not yet configured)');
+    return;
+  }
+  // Add the user email as a prefill parameter so Stripe knows who they are
+  var url = link + (S.user && S.user.email ? '?prefilled_email=' + encodeURIComponent(S.user.email) : '');
+  window.open(url, '_blank');
+}
+
+// ═══════════════════════════════
+// TOAST
+// ═══════════════════════════════
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderLeftColor = type==='e' ? 'var(--red)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+// ═══════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════
+function applyResp() {
+  if (!isMob()) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('ov-back').classList.remove('show');
+  }
+  var lp = document.getElementById('page-landing');
+  if (lp.classList.contains('active')) {
+    lp.style.marginLeft = isMob() ? '0' : 'calc(-1*var(--sw))';
+    lp.style.width = isMob() ? '100%' : 'calc(100% + var(--sw))';
+  }
+  // Adjust guest-lock left offset
+  var gl = document.getElementById('guest-lock');
+  gl.style.left = isMob() ? '0' : 'var(--sw)';
+}
+window.addEventListener('resize', applyResp);
+
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
+(function init() {
+  var today = new Date();
+  document.getElementById('l-date').value =
+    String(today.getMonth()+1).padStart(2,'0') + '/' +
+    String(today.getDate()).padStart(2,'0') + '/' +
+    today.getFullYear();
+
+  applyResp();
+  initSupabase();
+
+  if (CONFIG.USE_SUPABASE && SB) {
+    // Check if user already has an active session (e.g. page refresh)
+    SB.auth.getSession().then(function(result) {
+      if (result.data && result.data.session) {
+        loadUserFromSession(result.data.session);
+      } else {
+        showPage('dashboard');
+      }
+    });
+  } else {
+    // localStorage fallback
+    var saved = JSON.parse(localStorage.getItem('userData') || 'null');
+    if (saved) { loginUser(saved); } else { showPage('dashboard'); }
+  }
+})();
+</script>
+</body>
+</html>
